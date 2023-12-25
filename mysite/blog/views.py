@@ -9,7 +9,6 @@ from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count
-from django.contrib.postgres.search import TrigramSimilarity
 from django.http import Http404
 
 # Create your views here.
@@ -110,8 +109,8 @@ def post_searh(request):
         if form.is_valid():
             query = form.cleaned_data['query']
             results = Post.published.annotate(
-                similarity=TrigramSimilarity('title', query),
-            ).filter(similarity__gt=0.1).order_by('-similarity')
+                search=SearchVector('title', 'body'),
+            ).filter(search=query)
 
     return render(request,
                   'blog/post/search.html',
